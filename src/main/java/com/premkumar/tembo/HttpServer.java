@@ -3,6 +3,8 @@ package com.premkumar.tembo;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HttpServer {
 	ServerSocket server = null;
@@ -16,12 +18,11 @@ public class HttpServer {
 
 	public void run() throws Exception {
 		try {
-
+			ExecutorService threadPool = Executors.newFixedThreadPool(1);
 			while (true) {
 				System.out.println("loop");
 				Socket socket = server.accept();
-				Thread t = new Thread(new SocketThread(socket), "t-" + System.currentTimeMillis());
-				t.start();
+				threadPool.execute(new SocketThread(socket));
 			}
 		} finally {
 			if (server != null) {
