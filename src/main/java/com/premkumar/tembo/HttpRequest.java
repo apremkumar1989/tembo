@@ -13,6 +13,9 @@ public class HttpRequest {
 	private String body;
 	private String httpVersion;
 	private OutputStream outputStream;
+	
+	//TODO
+	private Map<String, String[]> parameters;
 
 	public RequestType getRequestType() {
 		return requestType;

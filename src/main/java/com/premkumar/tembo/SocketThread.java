@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.util.HashMap;
@@ -41,9 +40,11 @@ public class SocketThread implements Runnable {
 	}
 
 	private void handleRequest(HttpRequest request) throws Exception {
-		OutputStream outputStream = request.getOutputStream();
-		outputStream.write("accepted".getBytes());
-		LOGGER.info("wrote to output stream");
+		new RequestDispatcher().dispatch(request);
+//		OutputStream outputStream = request.getOutputStream();
+//		outputStream.write("accepted".getBytes());
+//		LOGGER.info("wrote to output stream");
+		LOGGER.info("handle request properly");
 	}
 
 	private HttpRequest constructHttpRequest() throws IOException {

@@ -13,16 +13,14 @@ public class HttpServer {
 
 	private static final int NUM_OF_SERVER_THREADS = 5;
 
-	private static Logger LOGGER = LoggerFactory.getLogger(SocketThread.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(HttpServer.class);
 
 	ServerSocket server = null;
 
 	private static int SERVER_PORT = 9090;
-	
 
 	public HttpServer() throws Exception {
 		server = new ServerSocket(SERVER_PORT);
-
 	}
 
 	public void run() throws Exception {
