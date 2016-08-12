@@ -1,2 +1,2 @@
 # tembo
-My implementation of a simple web server in java
+My implementation of a simple http server in java
