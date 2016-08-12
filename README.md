@@ -8,6 +8,8 @@ The meaning of the name is elephant. I chose this name because web server usuall
 I just wanted to implement my own server. I wanted to experiment by building my own version.
 
 Few reasons:
+* To work with sockets
+* A little bit of multi-threading
 * Parse and construct Http messages. Boundaries of the Http request.
 * How to dispatch delegate requests to various components
 * How to handle error scenarios
