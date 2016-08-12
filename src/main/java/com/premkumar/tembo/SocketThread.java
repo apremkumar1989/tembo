@@ -9,10 +9,14 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.premkumar.tembo.IContants.RequestType;
 
 public class SocketThread implements Runnable {
-
+	private static Logger LOGGER = LoggerFactory.getLogger(SocketThread.class);
+	
 	private Socket socket;
 
 	public SocketThread(Socket socket) {
@@ -22,15 +26,15 @@ public class SocketThread implements Runnable {
 	public void run() {
 		try {
 			HttpRequest request = constructHttpRequest();
-			System.out.println(request);
+			LOGGER.info("request " + request);
 			handleRequest(request);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			try {
 				socket.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 
@@ -39,7 +43,7 @@ public class SocketThread implements Runnable {
 	private void handleRequest(HttpRequest request) throws Exception {
 		OutputStream outputStream = request.getOutputStream();
 		outputStream.write("accepted".getBytes());
-		System.out.println("wrote to output stream");
+		LOGGER.info("wrote to output stream");
 	}
 
 	private HttpRequest constructHttpRequest() throws IOException {
@@ -66,7 +70,7 @@ public class SocketThread implements Runnable {
 			String line;
 			while (true) {
 				line = br.readLine();
-				System.out.println("read: " + line);
+				LOGGER.debug("read: " + line);
 
 				if (line.isEmpty())
 					break;
@@ -81,7 +85,7 @@ public class SocketThread implements Runnable {
 			String line;
 			while (true) {
 				line = br.readLine();
-				System.out.println("read: " + line);
+				LOGGER.debug("read: " + line);
 
 				if (line.isEmpty())
 					break;
@@ -90,7 +94,7 @@ public class SocketThread implements Runnable {
 			}
 
 			int content_length = Integer.parseInt(headerMap.get(IContants.CONTENT_LENGTH));
-			System.out.println(content_length);
+			LOGGER.debug("content length : "+content_length);
 
 			StringWriter bodyWriter = new StringWriter(content_length);
 			int count = 0;
@@ -99,7 +103,7 @@ public class SocketThread implements Runnable {
 				count++;
 			}
 			String body = bodyWriter.toString();
-			System.out.println("body:\n" + body);
+			LOGGER.debug("body:\n" + body);
 			httpRequest.setHeaders(headerMap);
 			httpRequest.setBody(body);
 		}
