@@ -1,4 +1,4 @@
-package com.premkumar;
+package com.premkumar.tembo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,9 +9,9 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.util.HashMap;
 
-public class SocketThread implements Runnable {
+import com.premkumar.tembo.IContants.RequestType;
 
-	private static String CONTENT_LENGTH = "Content-Length";
+public class SocketThread implements Runnable {
 
 	private Socket socket;
 
@@ -21,13 +21,9 @@ public class SocketThread implements Runnable {
 
 	public void run() {
 		try {
-			InputStream inputStream = socket.getInputStream();
-
-			String str = convertInputStream(inputStream);
-			System.out.println(str);
-			OutputStream outputStream = socket.getOutputStream();
-			outputStream.write("accepted".getBytes());
-			System.out.println("wrote to output stream");
+			HttpRequest request = constructHttpRequest();
+			System.out.println(request);
+			handleRequest(request);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -40,16 +36,31 @@ public class SocketThread implements Runnable {
 
 	}
 
-	private String convertInputStream(InputStream inputStream)
-			throws IOException {
-		char[] buffer = new char[1024 * 4];
+	private void handleRequest(HttpRequest request) throws Exception {
+		OutputStream outputStream = request.getOutputStream();
+		outputStream.write("accepted".getBytes());
+		System.out.println("wrote to output stream");
+	}
+
+	private HttpRequest constructHttpRequest() throws IOException {
+		InputStream inputStream = socket.getInputStream();
 		InputStreamReader input = new InputStreamReader(inputStream);
 		BufferedReader br = new BufferedReader(input);
-		StringWriter writer = new StringWriter();
 		String firstLine = br.readLine();
-		boolean isGet = firstLine.startsWith("GET");
-		boolean isPost = firstLine.startsWith("POST");
+		String[] lineSplit = firstLine.split(" ");
+		IContants.RequestType rt = RequestType.valueOf(lineSplit[0]);
+		if (rt == null) {
+			return null;
+		}
+
+		HttpRequest httpRequest = new HttpRequest();
+		boolean isGet = rt == RequestType.GET;
+		boolean isPost = rt == RequestType.POST;
 		HashMap<String, String> headerMap = new HashMap<String, String>();
+		httpRequest.setRequestType(rt);
+		httpRequest.setResource(lineSplit[1]);
+		httpRequest.setHttpVersion(lineSplit[2]);
+		httpRequest.setOutputStream(socket.getOutputStream());
 
 		if (isGet) {
 			String line;
@@ -62,7 +73,7 @@ public class SocketThread implements Runnable {
 				String[] split = parseHeader(line);
 				headerMap.put(split[0], split[1]);
 			}
-			return "parsed get request";
+			httpRequest.setHeaders(headerMap);
 		}
 
 		if (isPost) {
@@ -78,8 +89,7 @@ public class SocketThread implements Runnable {
 				headerMap.put(split[0], split[1]);
 			}
 
-			int content_length = Integer
-					.parseInt(headerMap.get(CONTENT_LENGTH));
+			int content_length = Integer.parseInt(headerMap.get(IContants.CONTENT_LENGTH));
 			System.out.println(content_length);
 
 			StringWriter bodyWriter = new StringWriter(content_length);
@@ -88,11 +98,13 @@ public class SocketThread implements Runnable {
 				bodyWriter.append((char) br.read());
 				count++;
 			}
-			System.out.println("body:\n" + bodyWriter.toString());
-			return "parsed post request";
+			String body = bodyWriter.toString();
+			System.out.println("body:\n" + body);
+			httpRequest.setHeaders(headerMap);
+			httpRequest.setBody(body);
 		}
 
-		return "bad request";
+		return httpRequest;
 	}
 
 	private String[] parseHeader(String headerLine) {

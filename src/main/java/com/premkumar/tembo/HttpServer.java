@@ -1,4 +1,4 @@
-package com.premkumar;
+package com.premkumar.tembo;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -20,7 +20,7 @@ public class HttpServer {
 			while (true) {
 				System.out.println("loop");
 				Socket socket = server.accept();
-				Thread t = new Thread(new SocketThread(socket));
+				Thread t = new Thread(new SocketThread(socket), "t-" + System.currentTimeMillis());
 				t.start();
 			}
 		} finally {
