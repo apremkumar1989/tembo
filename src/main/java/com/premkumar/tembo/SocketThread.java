@@ -11,11 +11,9 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.premkumar.tembo.IContants.RequestType;
-
 public class SocketThread implements Runnable {
 	private static Logger LOGGER = LoggerFactory.getLogger(SocketThread.class);
-	
+
 	private Socket socket;
 
 	public SocketThread(Socket socket) {
@@ -26,7 +24,8 @@ public class SocketThread implements Runnable {
 		try {
 			HttpRequest request = constructHttpRequest();
 			LOGGER.info("request " + request);
-			handleRequest(request);
+			HttpResponse response = new HttpResponse(socket.getOutputStream());
+			handleRequest(request, response);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		} finally {
@@ -39,11 +38,11 @@ public class SocketThread implements Runnable {
 
 	}
 
-	private void handleRequest(HttpRequest request) throws Exception {
-		new RequestDispatcher().dispatch(request);
-//		OutputStream outputStream = request.getOutputStream();
-//		outputStream.write("accepted".getBytes());
-//		LOGGER.info("wrote to output stream");
+	private void handleRequest(HttpRequest request, HttpResponse response) throws Exception {
+		new RequestDispatcher().dispatch(request, response);
+		// OutputStream outputStream = request.getOutputStream();
+		// outputStream.write("accepted".getBytes());
+		// LOGGER.info("wrote to output stream");
 		LOGGER.info("handle request properly");
 	}
 
@@ -53,19 +52,18 @@ public class SocketThread implements Runnable {
 		BufferedReader br = new BufferedReader(input);
 		String firstLine = br.readLine();
 		String[] lineSplit = firstLine.split(" ");
-		IContants.RequestType rt = RequestType.valueOf(lineSplit[0]);
+		HttpRequest.RequestMethod rt = HttpRequest.RequestMethod.valueOf(lineSplit[0]);
 		if (rt == null) {
 			return null;
 		}
 
 		HttpRequest httpRequest = new HttpRequest();
-		boolean isGet = rt == RequestType.GET;
-		boolean isPost = rt == RequestType.POST;
+		boolean isGet = rt == HttpRequest.RequestMethod.GET;
+		boolean isPost = rt == HttpRequest.RequestMethod.POST;
 		HashMap<String, String> headerMap = new HashMap<String, String>();
-		httpRequest.setRequestType(rt);
+		httpRequest.setRequestMethod(rt);
 		httpRequest.setResource(lineSplit[1]);
 		httpRequest.setHttpVersion(lineSplit[2]);
-		httpRequest.setOutputStream(socket.getOutputStream());
 
 		if (isGet) {
 			String line;
@@ -95,7 +93,7 @@ public class SocketThread implements Runnable {
 			}
 
 			int content_length = Integer.parseInt(headerMap.get(IContants.CONTENT_LENGTH));
-			LOGGER.debug("content length : "+content_length);
+			LOGGER.debug("content length : " + content_length);
 
 			StringWriter bodyWriter = new StringWriter(content_length);
 			int count = 0;

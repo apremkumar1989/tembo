@@ -11,19 +11,19 @@ public class RequestDispatcher {
 	private static Logger LOGGER = LoggerFactory.getLogger(RequestDispatcher.class);
 	private String static_file_path = "/tmp/";
 
-	public void dispatch(HttpRequest request) throws Exception {
+	public void dispatch(HttpRequest request,HttpResponse response) throws Exception {
 		//Handles only Static get requests correctly
 		File f = new File(static_file_path + request.getResource());
 		if (!f.exists() || f.isDirectory()) {
 			LOGGER.info("resource does not exist. "+ f.getAbsolutePath());
-			OutputStream outputStream = request.getOutputStream();
+			OutputStream outputStream = response.getOutputStream();
 			outputStream.write((request.getHttpVersion() + " 404 Not Found\n").getBytes());
 			outputStream.write(("\n").getBytes());
 			outputStream.close();
 			return;
 		}
 		FileInputStream fis = new FileInputStream(f);
-		OutputStream outputStream = request.getOutputStream();
+		OutputStream outputStream = response.getOutputStream();
 		outputStream.write((request.getHttpVersion() + " 200 OK\n").getBytes());
 		outputStream.write(("myheader: value1\n").getBytes());
 		outputStream.write(("myheader1: value2\n").getBytes());
@@ -35,6 +35,6 @@ public class RequestDispatcher {
 		}
 
 		fis.close();
-		request.getOutputStream().close();
+		response.getOutputStream().close();
 	}
 }
