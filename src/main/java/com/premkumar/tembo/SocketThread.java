@@ -11,13 +11,17 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.premkumar.tembo.Configuration.PortLevelConfig;
+
 public class SocketThread implements Runnable {
 	private static Logger LOGGER = LoggerFactory.getLogger(SocketThread.class);
 
 	private Socket socket;
+	private PortLevelConfig portConfig;
 
-	public SocketThread(Socket socket) {
+	public SocketThread(Socket socket, PortLevelConfig portConfig) {
 		this.socket = socket;
+		this.portConfig = portConfig;
 	}
 
 	public void run() {
@@ -39,10 +43,11 @@ public class SocketThread implements Runnable {
 	}
 
 	private void handleRequest(HttpRequest request, HttpResponse response) throws Exception {
-		new RequestDispatcher().dispatch(request, response);
-		// OutputStream outputStream = request.getOutputStream();
-		// outputStream.write("accepted".getBytes());
-		// LOGGER.info("wrote to output stream");
+		ServerBlock serverBlock = portConfig.getHostMapping().get(request.getHost());
+		if (serverBlock == null) {
+			serverBlock = portConfig.getDefaultBlock();
+		}
+		new RequestDispatcher().dispatch(serverBlock, request, response);
 		LOGGER.info("handle request properly");
 	}
 

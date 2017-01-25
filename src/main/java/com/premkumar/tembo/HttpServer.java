@@ -4,48 +4,48 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpServer {
+import com.premkumar.tembo.Configuration.PortLevelConfig;
 
-	private static final int NUM_OF_SERVER_THREADS = 5;
+public class HttpServer implements Runnable {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(HttpServer.class);
 
-	ServerSocket server = null;
+	private PortLevelConfig portConfig;
+	private ServerSocket server = null;
+	private ExecutorService pool;
 
-	private static int SERVER_PORT = 9090;
-
-	public HttpServer() throws Exception {
-		server = new ServerSocket(SERVER_PORT);
+	public HttpServer(PortLevelConfig portConfig, ExecutorService pool) throws Exception {
+		this.portConfig = portConfig;
+		this.pool = pool;
 	}
 
-	public void run() throws Exception {
-		LOGGER.info("server listening on port " + server.getLocalPort());
+	public void run() {
 		try {
-			ExecutorService threadPool = Executors.newFixedThreadPool(NUM_OF_SERVER_THREADS);
-			while (true) {
-				LOGGER.info("listening....");
-				Socket socket = server.accept();
-				threadPool.execute(new SocketThread(socket));
-			}
-		} finally {
-			if (server != null) {
-				try {
-					server.close();
-				} catch (IOException e) {
-					LOGGER.error(e.getMessage(), e);
+			server = new ServerSocket(portConfig.getPort());
+			LOGGER.info("server listening on port " + server.getLocalPort());
+			try {
+				ExecutorService threadPool = pool;
+				while (true) {
+					LOGGER.info("listening....");
+					Socket socket = server.accept();
+					threadPool.execute(new SocketThread(socket, portConfig));
+				}
+			} finally {
+				if (server != null) {
+					try {
+						server.close();
+					} catch (IOException e) {
+						LOGGER.error(e.getMessage(), e);
+					}
 				}
 			}
+		} catch (Exception e) {
+			LOGGER.error("exiting server because of unhandled exception.", e);
 		}
-	}
-
-	public static void main(String[] args) throws Exception {
-		HttpServer myServer = new HttpServer();
-		myServer.run();
 	}
 
 }

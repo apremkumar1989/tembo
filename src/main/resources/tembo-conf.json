@@ -1,0 +1,24 @@
+{
+	"total-workers" : 5,
+	"mapping" : [
+		{
+			"host" : ["mywebsite.com"],
+			"port" : 9090,
+			"location" : "/mydrive/project-workspace/my_website",
+			"index" : ["index.html"],
+			"type" : "static"
+		},
+		{
+			"host" : ["apremkumar-mydrive.com"],
+			"port" : 9090,
+			"location" : "/mydrive/project-workspace/my_website",
+			"type" : "static"
+		},
+		{
+			"host" : ["apremkumar-mydrive.com"],
+			"port" : 9091,
+			"location" : "/mydrive/project-workspace/my_website",
+			"type" : "static"
+		}	
+	]
+}

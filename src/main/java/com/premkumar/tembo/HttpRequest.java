@@ -139,6 +139,15 @@ public class HttpRequest {
 		this.httpVersion = httpVersion;
 	}
 
+	public String getHost() {
+		return this.headers.get("Host").split(":")[0];
+	}
+
+	public String getPort() {
+		String[] split = this.headers.get("Host").split(":");
+		return split.length > 1 ? split[1] : "80";
+	}
+
 	@Override
 	public String toString() {
 		return "HttpRequest [requestMethod=" + requestMethod + ", resource=" + resource + ", httpVersion=" + httpVersion + "]";
