@@ -1,11 +1,15 @@
 package com.premkumar.tembo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ServerBlock {
 
 	private String[] hosts;
 	private int port;
 	private String basePath;
 	private String[] indexFiles = {};
+	private List<HttpHeader> headers = new ArrayList<HttpHeader>();
 
 	public String[] getHosts() {
 		return hosts;
@@ -37,6 +41,14 @@ public class ServerBlock {
 
 	public void setIndexFiles(String[] indexFiles) {
 		this.indexFiles = indexFiles;
+	}
+
+	public List<HttpHeader> getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(List<HttpHeader> headers) {
+		this.headers = headers;
 	}
 
 }

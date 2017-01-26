@@ -6,7 +6,17 @@
 			"port" : 9090,
 			"location" : "/mydrive/project-workspace/my_website",
 			"index" : ["index.html"],
-			"type" : "static"
+			"type" : "static",
+			"headers" : [
+					{
+						"name" : "Set-Cookie",
+						"value" : "mycookie=choco;"
+					},
+					{
+						"name" : "server",
+						"value" : "tembo"
+					}
+			]
 		},
 		{
 			"host" : ["apremkumar-mydrive.com"],

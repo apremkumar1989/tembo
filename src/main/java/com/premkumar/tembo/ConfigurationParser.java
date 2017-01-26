@@ -74,6 +74,16 @@ public class ConfigurationParser {
 			serverBlock.setIndexFiles(indexFiles);
 
 		}
+		if (sbConf.has("headers")) {
+			JSONArray headersJson = sbConf.getJSONArray("headers");
+			i = 0;
+			iterator = headersJson.iterator();
+			while (iterator.hasNext()) {
+				JSONObject headerJson = (JSONObject) iterator.next();
+				serverBlock.getHeaders().add(new HttpHeader(headerJson.getString("name"), headerJson.getString("value")));
+			}
+
+		}
 		return serverBlock;
 	}
 }

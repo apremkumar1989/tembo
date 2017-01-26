@@ -52,8 +52,12 @@ public class RequestDispatcher {
 		if (contentType != null)
 			outputStream.write(("Content-Type:" + contentType + "\n").getBytes());
 		// TODO headers and cookie addition
-		outputStream.write(("myheader1: value2\n").getBytes());
-		outputStream.write(("Set-Cookie: yummy_cookie=choco124\n").getBytes());
+		for (HttpHeader header : serverBlock.getHeaders()) {
+			outputStream.write(header.getName().getBytes());
+			outputStream.write((": ").getBytes());
+			outputStream.write(header.getValue().getBytes());
+			outputStream.write(("\n").getBytes());
+		}
 		outputStream.write(("\n").getBytes());
 
 		while (fis.available() != 0) {
